@@ -1,0 +1,5 @@
+happy, 8
+love, 10
+adore, 9
+sad, 1
+normal, 5
