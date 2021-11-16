@@ -52,12 +52,16 @@ def compute_tweets(f_tweets_name, f_key_name):
         tweetLocation(c, regionTweetCount)
     print(regionTweetCount)
 
-
+    regionScore = [0,0,0,0]
     '''Calculating score'''
     scoreList = []
-    regionKeywordTweetCount = calculateTweetScore(scoreList, tweetList, keyList, coordinatesList)
+    regionKeywordTweetCount = calculateTweetScore(scoreList, tweetList, keyList, coordinatesList, regionScore)
 
-
+    # calculating the average happiness score for each region
+    for i in range(len(regionScore)):
+        if regionTweetCount[i] != 0:
+            regionScore[i] = regionScore[i]/regionTweetCount[i]
+    print(regionScore)
     # For now, the function returns a list of scores.
     return(scoreList)
 
@@ -76,7 +80,7 @@ def organizeKeywords(file):
         kList.append(temp)
     return kList
 
-def calculateTweetScore(score, sentenceList, keywordList, coordinates):
+def calculateTweetScore(score, sentenceList, keywordList, coordinates, regionScoreList):
     '''Function that takes a sentence, finds keywords, and calculates a score based on keywords in sentence'''
     # score is an ordered list of the happiness score value of each tweet
     # sentenceList is a list of sentences (which are lists of words) to compute
@@ -109,9 +113,17 @@ def calculateTweetScore(score, sentenceList, keywordList, coordinates):
             # in order to avoid ZeroDivisionError
             score.append(0)
         else:
-            tweetLocation(coordinates[tweet], countKeywordTweets)
+            tweetRegion = tweetLocation(coordinates[tweet], countKeywordTweets)
 
             scoreTemp = scoreTemp/countKeywords
+            if tweetRegion == 0:
+                regionScoreList[0] += scoreTemp
+            elif tweetRegion == 1:
+                regionScoreList[1] += scoreTemp
+            elif tweetRegion == 2:
+                regionScoreList[2] += scoreTemp
+            elif tweetRegion == 3:
+                regionScoreList[3] += scoreTemp
             score.append(scoreTemp)
     #print(countKeywordTweets)
     return(countKeywordTweets)
@@ -129,12 +141,16 @@ def tweetLocation(stringCoordinates, regionCount):
         if coordinates[1] < P1[1] and coordinates[1] > P3[1]:
             # Eastern Region found
             regionCount[0] += 1
+            return 0
         elif coordinates[1] < P3[1] and coordinates[1] > P5[1]:
             # Central Region
             regionCount[1] += 1
+            return 1
         elif coordinates[1] < P5[1] and coordinates[1] > P7[1]:
             # Mountain Region
             regionCount[2] += 1
+            return 2
         elif coordinates[1] < P7[1] and coordinates[1] > P9[1]:
             # Pacific Region
             regionCount[3] += 1
+            return 3
