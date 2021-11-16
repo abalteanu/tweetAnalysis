@@ -3,8 +3,8 @@ import sentiment_analysis
 
 def main():
 
-    tweetsFileName = "tweets1.txt"
-    keyFileName = "key1.txt"
+    tweetsFileName = "tweets.txt"
+    keyFileName = "keywords.txt"
 
     print(sentiment_analysis.compute_tweets(tweetsFileName, keyFileName))
 

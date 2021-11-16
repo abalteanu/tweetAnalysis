@@ -1,2 +1,2 @@
-[444, 888] 3 3 3:33 hello my name is ana. and I love bananas they make me so happy.
-[323, 223] 3 3 3:22 hello my name is ana and I adore bananas but sometimes they make me sad. I am normal about cars.
+[30, -90] 3 3 3:33 HELLO my name is ana. and I love bananas they make me so happy.
+[40, -122] 3 3 3:22 hello my name is ana and I adore bananas but sometimes they make me sad. I am normal about cars.
