@@ -45,26 +45,31 @@ def compute_tweets(f_tweets_name, f_key_name):
         # adds list of words in individual tweet to a list of tweets
         tweetList.append(tempTweet)
 
+
     # list that will have four elements, each which will count the number of points in a certain region (E, C, M, P)
-    regionTweetCount = [0, 0, 0, 0]
+    count_of_tweets = [0, 0, 0, 0]
+
     # counting tweets in each region
     for c in coordinatesList:
-        tweetLocation(c, regionTweetCount)
-    print(regionTweetCount)
+        tweetLocation(c, count_of_tweets)
+    #print(count_of_tweets)
 
     regionScore = [0,0,0,0]
     '''Calculating score'''
-    scoreList = []
-    regionKeywordTweetCount = calculateTweetScore(scoreList, tweetList, keyList, coordinatesList, regionScore)
+    count_of_keyword_tweets = calculateTweetScore(tweetList, keyList, coordinatesList, regionScore)
 
     # calculating the average happiness score for each region
     for i in range(len(regionScore)):
-        if regionTweetCount[i] != 0:
-            regionScore[i] = regionScore[i]/regionTweetCount[i]
-    print(regionScore)
-    # For now, the function returns a list of scores.
-    return(scoreList)
+        if count_of_tweets[i] != 0:
+            regionScore[i] = regionScore[i]/count_of_tweets[i]
+    print(regionScore, count_of_keyword_tweets, count_of_tweets)
+    east_tuple = (regionScore[0], count_of_keyword_tweets[0], count_of_tweets[0])
+    central_tuple = (regionScore[1], count_of_keyword_tweets[1], count_of_tweets[1])
+    mountain_tuple = (regionScore[2], count_of_keyword_tweets[2], count_of_tweets[2])
+    pacific_tuple = (regionScore[3], count_of_keyword_tweets[3], count_of_tweets[3])
 
+    endList = [east_tuple, central_tuple, mountain_tuple, pacific_tuple]
+    return(endList)
 
 '''Organizing info from fKey'''
 def organizeKeywords(file):
@@ -80,7 +85,7 @@ def organizeKeywords(file):
         kList.append(temp)
     return kList
 
-def calculateTweetScore(score, sentenceList, keywordList, coordinates, regionScoreList):
+def calculateTweetScore(sentenceList, keywordList, coordinates, regionScoreList):
     '''Function that takes a sentence, finds keywords, and calculates a score based on keywords in sentence'''
     # score is an ordered list of the happiness score value of each tweet
     # sentenceList is a list of sentences (which are lists of words) to compute
@@ -109,10 +114,8 @@ def calculateTweetScore(score, sentenceList, keywordList, coordinates, regionSco
 
 
         # taking average of sentiment value score divided by number of keywords found in tweet
-        if countKeywords == 0:
+        if countKeywords != 0:
             # in order to avoid ZeroDivisionError
-            score.append(0)
-        else:
             tweetRegion = tweetLocation(coordinates[tweet], countKeywordTweets)
 
             scoreTemp = scoreTemp/countKeywords
@@ -124,7 +127,7 @@ def calculateTweetScore(score, sentenceList, keywordList, coordinates, regionSco
                 regionScoreList[2] += scoreTemp
             elif tweetRegion == 3:
                 regionScoreList[3] += scoreTemp
-            score.append(scoreTemp)
+            #score.append(scoreTemp)
     #print(countKeywordTweets)
     return(countKeywordTweets)
 
