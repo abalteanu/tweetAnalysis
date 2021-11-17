@@ -1,4 +1,3 @@
-hello,8
-orange,10
-grape,1
-tourist,5
+ana,3
+love,9
+fury,1

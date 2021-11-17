@@ -63,7 +63,7 @@ def compute_tweets(f_tweets_name, f_key_name):
 
     # calculating the average happiness score for each region
     for i in range(len(region_score)):
-        if count_of_tweets[i] != 0:
+        if count_of_keyword_tweets[i] != 0:
             region_score[i] = region_score[i]/count_of_keyword_tweets[i]
     # print(region_score, count_of_keyword_tweets, count_of_tweets)
 
