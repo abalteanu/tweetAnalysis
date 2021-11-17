@@ -1,0 +1,4 @@
+hello,8
+orange,10
+grape,1
+tourist,5

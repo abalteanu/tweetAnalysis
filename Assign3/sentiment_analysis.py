@@ -12,64 +12,68 @@ P7 = (49.189787, -115.236428)
 P8 = (24.660845, -115.236428)
 P9 = (49.189787, -125.242264)
 P10 = (24.660845, -125.242264)
+PUNC = '''!()-[]{};:'"\,<>./?@#$%^&*_~'''
 
 
 def compute_tweets(f_tweets_name, f_key_name):
-    endList = []  # final list to return
+    end_list = []  # final list to return
     try:
         fTweets = open(f_tweets_name, encoding='utf-8', errors='ignore')
         fKey = open(f_key_name, encoding='utf-8', errors='ignore')
     except IOError:
         # if one of the files does not exist, return an empty list
-        return endList
+        return end_list
+
 
 
     '''Organizing info from fKey'''
-    keyList = organizeKeywords(fKey) #keyList is a list of touples containing a keyword followed by its score
+    key_list = organizeKeywords(fKey) #key_list is a list of touples containing a keyword followed by its score
 
     '''Organizing info from fTweets'''
-    coordinatesList = []
-    tweetList = []
-
-    for item in fTweets:
-        # iterates through each line in the function
-        tweetInfoL = item.split(" ")
-        tempCoordinate = (tweetInfoL[0].strip(",[]"), tweetInfoL[1].strip(",[]"))  # makes coordinate tuple
-        coordinatesList.append(tempCoordinate)  # makes a list of tuples (list of coordinates)
-        tempTweet = []  # temporary list containing a list of the individual words in the tweet
-
-
-        for j in range(5, len(tweetInfoL)):
-            # populating list by iterating through each item in original list, starting after unnecessary info
-            tempTweet.append(tweetInfoL[j].lstrip(".#?!-_\n").rstrip(".#?!-_\n").lower())
-        # adds list of words in individual tweet to a list of tweets
-        tweetList.append(tempTweet)
-
-
+    coordinates_list = []
+    tweet_list = []
     # list that will have four elements, each which will count the number of points in a certain region (E, C, M, P)
     count_of_tweets = [0, 0, 0, 0]
+    region_score = [0, 0, 0, 0] # for the average happiness score of each region
 
+    for item in fTweets:
+
+        # iterates through each line in the function
+        tweet_info_list = item.rstrip("\n").split(" ")
+        tempCoordinate = (tweet_info_list[0].strip(",[]"), tweet_info_list[1].strip(",[]"))  # makes coordinate tuple
+        coordinates_list.append(tempCoordinate)  # makes a list of tuples (list of coordinates)
+        temp_tweet = []  # temporary list containing a list of the individual words in the tweet
+
+        # print(key_list)
+        for j in range(5, len(tweet_info_list)):
+            # populating list by iterating through each item in original list, starting after unnecessary info
+            temp_tweet.append(tweet_info_list[j].lstrip(PUNC).rstrip(PUNC).lower())
+        # adds list of words in individual tweet to a list of tweets
+        tweet_list.append(temp_tweet)
+
+        #print(temp_tweet)
     # counting tweets in each region
-    for c in coordinatesList:
+    for c in coordinates_list:
         tweetLocation(c, count_of_tweets)
     #print(count_of_tweets)
 
-    regionScore = [0,0,0,0]
+
     '''Calculating score'''
-    count_of_keyword_tweets = calculateTweetScore(tweetList, keyList, coordinatesList, regionScore)
+    count_of_keyword_tweets = calculateTweetScore(tweet_list, key_list, coordinates_list, region_score)
 
     # calculating the average happiness score for each region
-    for i in range(len(regionScore)):
+    for i in range(len(region_score)):
         if count_of_tweets[i] != 0:
-            regionScore[i] = regionScore[i]/count_of_tweets[i]
-    print(regionScore, count_of_keyword_tweets, count_of_tweets)
-    east_tuple = (regionScore[0], count_of_keyword_tweets[0], count_of_tweets[0])
-    central_tuple = (regionScore[1], count_of_keyword_tweets[1], count_of_tweets[1])
-    mountain_tuple = (regionScore[2], count_of_keyword_tweets[2], count_of_tweets[2])
-    pacific_tuple = (regionScore[3], count_of_keyword_tweets[3], count_of_tweets[3])
+            region_score[i] = region_score[i]/count_of_keyword_tweets[i]
+    # print(region_score, count_of_keyword_tweets, count_of_tweets)
 
-    endList = [east_tuple, central_tuple, mountain_tuple, pacific_tuple]
-    return(endList)
+    east_tuple = (region_score[0], count_of_keyword_tweets[0], count_of_tweets[0])
+    central_tuple = (region_score[1], count_of_keyword_tweets[1], count_of_tweets[1])
+    mountain_tuple = (region_score[2], count_of_keyword_tweets[2], count_of_tweets[2])
+    pacific_tuple = (region_score[3], count_of_keyword_tweets[3], count_of_tweets[3])
+
+    end_list = [east_tuple, central_tuple, mountain_tuple, pacific_tuple]
+    return(end_list)
 
 '''Organizing info from fKey'''
 def organizeKeywords(file):
@@ -119,6 +123,7 @@ def calculateTweetScore(sentenceList, keywordList, coordinates, regionScoreList)
             tweetRegion = tweetLocation(coordinates[tweet], countKeywordTweets)
 
             scoreTemp = scoreTemp/countKeywords
+            #print(scoreTemp)
             if tweetRegion == 0:
                 regionScoreList[0] += scoreTemp
             elif tweetRegion == 1:
@@ -139,21 +144,21 @@ def tweetLocation(stringCoordinates, regionCount):
         coordinates.append(float(item))
 
     #print(coordinates)
-    if coordinates[0] < P1[0] and coordinates[0] > P2[0]:
+    if coordinates[0] <= P1[0] and coordinates[0] > P2[0]:
         # determining if point is within latitude
-        if coordinates[1] < P1[1] and coordinates[1] > P3[1]:
+        if coordinates[1] <= P1[1] and coordinates[1] > P3[1]:
             # Eastern Region found
             regionCount[0] += 1
             return 0
-        elif coordinates[1] < P3[1] and coordinates[1] > P5[1]:
+        elif coordinates[1] <= P3[1] and coordinates[1] > P5[1]:
             # Central Region
             regionCount[1] += 1
             return 1
-        elif coordinates[1] < P5[1] and coordinates[1] > P7[1]:
+        elif coordinates[1] <= P5[1] and coordinates[1] > P7[1]:
             # Mountain Region
             regionCount[2] += 1
             return 2
-        elif coordinates[1] < P7[1] and coordinates[1] > P9[1]:
+        elif coordinates[1] <= P7[1] and coordinates[1] > P9[1]:
             # Pacific Region
             regionCount[3] += 1
             return 3
