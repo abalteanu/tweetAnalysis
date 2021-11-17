@@ -1,3 +1,4 @@
 ana,3
 love,9
 fury,1
+orange,4

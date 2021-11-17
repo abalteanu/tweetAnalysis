@@ -41,6 +41,7 @@ def compute_tweets(f_tweets_name, f_key_name):
         # iterates through each line in the function
         tweet_info_list = item.rstrip("\n").split(" ")
         tempCoordinate = (tweet_info_list[0].strip(",[]"), tweet_info_list[1].strip(",[]"))  # makes coordinate tuple
+
         coordinates_list.append(tempCoordinate)  # makes a list of tuples (list of coordinates)
         temp_tweet = []  # temporary list containing a list of the individual words in the tweet
 
@@ -95,44 +96,48 @@ def calculateTweetScore(sentenceList, keywordList, coordinates, regionScoreList)
     # sentenceList is a list of sentences (which are lists of words) to compute
     # keywordList is a list of tuples containing the keyword to find (0) and the score of that word
     # lists are passed by reference therefore they do not need to be returned
+
+
     countKeywordTweets = [0,0,0,0] # will count the number of keyword tweets in the list.
+    countTweets = [0,0,0,0]
 
     for tweet in range(len(sentenceList)):
-
+        #print(coordinates[tweet])
         #print("Tweet: ", tweet)
         # iterating through tweets
-        scoreTemp=0.0   # will add the score value of each keyword found
-        countKeywords=0 # will count the number of keywords found in the tweet
+        tweetRegion = tweetLocation(coordinates[tweet], countTweets)
+        if tweetRegion == 1 or tweetRegion == 2 or tweetRegion == 3 or tweetRegion == 0:
+            scoreTemp=0.0   # will add the score value of each keyword found
+            countKeywords=0 # will count the number of keywords found in the tweet
+            #print(tweet, coordinates[tweet], tweetRegion)
+            for keyword in keywordList:
+                # iterating through each possible keyword in the list to check if it is a tweet
+                #print("Keyword: ", keyword)
+                for word in sentenceList[tweet]:
+                    #print("Word in tweet: ", word)
+                    # iterating through words in tweets
+                    if keyword[0] == word:
+                        keyword[1] = int(keyword[1])
+                        scoreTemp = scoreTemp + keyword[1]
+                        #print(tweet, keyword[0], scoreTemp)
+                        countKeywords+=1
+            if countKeywords != 0:
+                # in order to avoid ZeroDivisionError
+                scoreTemp = scoreTemp/countKeywords
+                # taking average of sentiment value score divided by number of keywords found in tweet
+                tweetRegion = tweetLocation(coordinates[tweet], countKeywordTweets)
+                #print(scoreTemp)
+                if tweetRegion == 0:
+                    regionScoreList[0] += scoreTemp
+                elif tweetRegion == 1:
+                    regionScoreList[1] += scoreTemp
+                elif tweetRegion == 2:
+                    regionScoreList[2] += scoreTemp
+                elif tweetRegion == 3:
+                    regionScoreList[3] += scoreTemp
+                #score.append(scoreTemp)
+                #print(scoreTemp)
 
-        for keyword in keywordList:
-            # iterating through each possible keyword in the list to check if it is a tweet
-            #print("Keyword: ", keyword)
-            for word in sentenceList[tweet]:
-                #print("Word in tweet: ", word)
-                # iterating through words in tweets
-                if keyword[0] == word:
-                    keyword[1] = int(keyword[1])
-                    scoreTemp = scoreTemp + keyword[1]
-                    #print(keyword[1], scoreTemp)
-                    countKeywords+=1
-
-
-        # taking average of sentiment value score divided by number of keywords found in tweet
-        if countKeywords != 0:
-            # in order to avoid ZeroDivisionError
-            tweetRegion = tweetLocation(coordinates[tweet], countKeywordTweets)
-
-            scoreTemp = scoreTemp/countKeywords
-            #print(scoreTemp)
-            if tweetRegion == 0:
-                regionScoreList[0] += scoreTemp
-            elif tweetRegion == 1:
-                regionScoreList[1] += scoreTemp
-            elif tweetRegion == 2:
-                regionScoreList[2] += scoreTemp
-            elif tweetRegion == 3:
-                regionScoreList[3] += scoreTemp
-            #score.append(scoreTemp)
     #print(countKeywordTweets)
     return(countKeywordTweets)
 
@@ -140,25 +145,29 @@ def tweetLocation(stringCoordinates, regionCount):
     '''function that determines in which region a set of coordinates is based on constants above'''
 
     coordinates = []
+
     for item in stringCoordinates:
         coordinates.append(float(item))
 
     #print(coordinates)
-    if coordinates[0] <= P1[0] and coordinates[0] > P2[0]:
+    if P1[0] >= coordinates[0] >= P2[0]:
         # determining if point is within latitude
-        if coordinates[1] <= P1[1] and coordinates[1] > P3[1]:
+        if P1[1] >= coordinates[1] > P3[1]:
+            # print(coordinates)
             # Eastern Region found
             regionCount[0] += 1
             return 0
-        elif coordinates[1] <= P3[1] and coordinates[1] > P5[1]:
+        elif P3[1] >= coordinates[1] > P5[1]:
             # Central Region
             regionCount[1] += 1
             return 1
-        elif coordinates[1] <= P5[1] and coordinates[1] > P7[1]:
+        elif P5[1] >= coordinates[1] > P7[1]:
             # Mountain Region
             regionCount[2] += 1
             return 2
-        elif coordinates[1] <= P7[1] and coordinates[1] > P9[1]:
+        elif P7[1] >= coordinates[1] > P9[1]:
             # Pacific Region
             regionCount[3] += 1
             return 3
+        else:
+            return 4
